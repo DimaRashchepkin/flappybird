@@ -86,7 +86,7 @@ class Fon(pygame.sprite.Sprite):
 
 
 class Bird(pygame.sprite.Sprite):
-    speed = 2
+    speed = 1
     jump_flag = True
     up_flag = False
     dir_speed = 1
@@ -113,11 +113,11 @@ class Bird(pygame.sprite.Sprite):
                     frame_location, self.rect.size)))
 
     def update(self):
+        self.mask = pygame.mask.from_surface(self.image)
         if self.jump_flag:
             if self.rect.y + 50 < height:
                 self.rect.y += Bird.speed
-                if self.num == 12:
-                    Bird.speed = 2
+                Bird.speed += 0.1
                 self.num += 1
                 self.k += 0.1
                 self.cur_frame = (round(self.k)) % len(self.frames)
@@ -126,7 +126,7 @@ class Bird(pygame.sprite.Sprite):
     def jump(self):
         if Bird.jump_flag is True:
             Bird.up_flag = True
-            Bird.speed = -5
+            Bird.speed = -3.5
             self.num = 0
 
 
