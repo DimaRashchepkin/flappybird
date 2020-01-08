@@ -10,6 +10,7 @@ size = width, height = 700, 500
 screen = pygame.display.set_mode(size)
 FPS = 50
 STEP = 10
+score = 0
 player = pygame.sprite.Group()
 fon = pygame.sprite.Group()
 cls = pygame.sprite.Group()
@@ -85,8 +86,9 @@ class Fon(pygame.sprite.Sprite):
 
 
 class Bird(pygame.sprite.Sprite):
-    f_speed = 2
+    speed = 2
     jump_flag = True
+    up_flag = False
     dir_speed = 1
 
     def __init__(self, group, sheet, columns, rows, x, y):
@@ -94,6 +96,7 @@ class Bird(pygame.sprite.Sprite):
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
+        self.num = 0
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(x, y)
         self.mask = pygame.mask.from_surface(self.image)
@@ -110,18 +113,21 @@ class Bird(pygame.sprite.Sprite):
                     frame_location, self.rect.size)))
 
     def update(self):
-        if self.rect.y + 50 < height:
-            self.rect.y += Bird.f_speed
-            self.k += 0.1
-            self.cur_frame = (round(self.k)) % len(self.frames)
-            self.image = self.frames[self.cur_frame]
+        if self.jump_flag:
+            if self.rect.y + 50 < height:
+                self.rect.y += Bird.speed
+                if self.num == 12:
+                    Bird.speed = 2
+                self.num += 1
+                self.k += 0.1
+                self.cur_frame = (round(self.k)) % len(self.frames)
+                self.image = self.frames[self.cur_frame]
 
     def jump(self):
         if Bird.jump_flag is True:
-            Bird.f_speed = 0
-            for i in range(50):
-                self.rect.y -= 1
-            Bird.f_speed = 2
+            Bird.up_flag = True
+            Bird.speed = -5
+            self.num = 0
 
 
 class Column(pygame.sprite.Sprite):
@@ -140,7 +146,7 @@ class Column(pygame.sprite.Sprite):
         if pygame.sprite.collide_mask(self, bird):
             Column.speed = 0
             Fon.speed = 0
-            Bird.f_speed = 0
+            Bird.speed = 0
             Bird.jump_flag = False
             Bird.dir_speed = 0
 
@@ -161,8 +167,9 @@ while running:
             if event.key == pygame.K_SPACE:
                 bird.jump()
     screen.fill(pygame.Color('black'))
-    if cl.rect.x < width / 2:
+    if cl.rect.x < width / 2 - 130:
         cl = Column(cls)
+        score += 1
     fon.update()
     fon.draw(screen)
     player.update()
